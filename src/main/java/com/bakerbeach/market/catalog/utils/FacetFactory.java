@@ -11,7 +11,6 @@ import com.bakerbeach.market.core.api.model.Filter;
 import com.bakerbeach.market.core.api.model.FilterList;
 
 public class FacetFactory {
-
 	private static List<String> fieldFilters = new ArrayList<String>();
 	private static List<String> singleSelectFilters = new ArrayList<String>();
 	private static List<String> multiValueFilters = new ArrayList<String>();

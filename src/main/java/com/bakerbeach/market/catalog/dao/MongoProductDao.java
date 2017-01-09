@@ -587,6 +587,9 @@ public class MongoProductDao implements ProductDao {
 				scaledPrice.setGroup((String) priceDbo.get("group"));
 				scaledPrice.setStart((Date) priceDbo.get("start"));
 				scaledPrice.setValue(new BigDecimal(priceDbo.get("value").toString()));
+				if (priceDbo.containsField("monthly")) {
+					scaledPrice.setMonthlyValue(new BigDecimal(priceDbo.get("monthly").toString()));					
+				}
 				scaledPrice.setCurrency(Currency.getInstance((String) priceDbo.get("currency")));
 				currencies.add((String) priceDbo.get("currency"));
 				prices.add(scaledPrice);

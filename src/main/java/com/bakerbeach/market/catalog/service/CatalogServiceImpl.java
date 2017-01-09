@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,11 +74,15 @@ public class CatalogServiceImpl implements CatalogService {
 
 	@Override
 	public CatalogSearchResult groupIndexQuery(Locale locale, String priceGroup, Currency currency,
-			String assortmentCode, String countryOfDelivery, Date date, FilterList filterList, String query,
+			String assortmentCode, String countryOfDelivery, Date date, FilterList filterList, String query, List<String> filterQueries,
 			String groupBy, Pager pager, String sort) {
 
+		if (StringUtils.isBlank(query)) {
+			query = "*:*";
+		}
+		
 		specifyPriceFilter(filterList, currency.getCurrencyCode(), priceGroup);
-		List<GroupedProduct> products = solrProductDao.groupQuery(locale, priceGroup, currency, filterList, query,
+		List<GroupedProduct> products = solrProductDao.groupQuery(locale, priceGroup, currency, filterList, query, filterQueries,
 				groupBy, pager.getPageSize(), pager.getCurrentPage(), sort);
 		refineProduct(products);
 
@@ -88,6 +93,29 @@ public class CatalogServiceImpl implements CatalogService {
 		return catalogSearchResult;
 	}
 
+	@Override
+	public CatalogSearchResult groupIndexQuery(Locale locale, String priceGroup, Currency currency,
+			String assortmentCode, String countryOfDelivery, Date date, FilterList filterList, String query,
+			String groupBy, Pager pager, String sort) {
+		
+		if (StringUtils.isBlank(query)) {
+			query = "*:*";
+		}
+		
+		List<String> filterQueries = null;
+		
+		specifyPriceFilter(filterList, currency.getCurrencyCode(), priceGroup);
+		List<GroupedProduct> products = solrProductDao.groupQuery(locale, priceGroup, currency, filterList, query, filterQueries,
+				groupBy, pager.getPageSize(), pager.getCurrentPage(), sort);
+		refineProduct(products);
+		
+		CatalogSearchResult catalogSearchResult = new CatalogSearchResult();
+		catalogSearchResult.setProducts(products);
+		catalogSearchResult.setFilterList(filterList);
+		catalogSearchResult.setPager(new Pager(products.size(), 1, products.size()));
+		return catalogSearchResult;
+	}
+	
 	@Override
 	public List<Product> findByGtin(Locale locale, String priceGroup, Currency currency, String countryOfDelivery,
 			Date date, Collection<String> gtins) {

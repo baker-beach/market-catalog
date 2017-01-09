@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -50,6 +51,55 @@ public class SolrProductDaoLiveImpl implements SolrProductDao {
 
 	@Override
 	public List<GroupedProduct> groupQuery(Locale locale, String priceGroup, Currency currency, FilterList filterList,
+			String query, List<String> filterQueries, String groupBy, Integer pageSize, Integer currentPage, String sort) {
+		try {
+			SolrServer solr = new HttpSolrServer(url);
+
+			SolrQuery q = new SolrQuery();
+			q.setQuery(query);
+			q.setParam("group", true);
+			q.setParam("rows", (pageSize != null) ? pageSize.toString() : DEFAULT_LIMIT.toString());
+			q.setParam("group.field", groupBy);
+			q.setParam("group.limit", "100");
+			q.setParam("group.ngroups", true);
+			// q.setParam("group.sort", "s_detailsort asc");
+			if (currentPage != null) {
+				Integer offset = ((currentPage - 1) * pageSize);
+				q.setParam("start", offset.toString());
+			}
+			if (sort != null && !sort.isEmpty()) {
+				q.setParam("sort", sort);
+			}
+			q.setFilterQueries("active_from:[* TO NOW] AND active_to:[NOW TO *]");
+
+			if (CollectionUtils.isNotEmpty(filterQueries)) {
+				filterQueries.forEach(fq -> q.addFilterQuery(fq));
+			}
+			
+			// facet search ---
+			if (filterList != null) {
+				q.setFacet(true);
+				q.setFacetSort("index");
+				q.setFacetMinCount(1);
+				q.setFacetLimit(-1);
+				setFacetFilter(q, filterList);
+			}
+
+			QueryResponse rsp = solr.query(q);
+			List<GroupedProduct> groupedProducts = getGroupedProducts(rsp, locale, priceGroup,
+					currency.getCurrencyCode(), groupBy);
+
+			updateFilterList(rsp, filterList);
+
+			return groupedProducts;
+		} catch (Exception e) {
+			// LOG.error(ExceptionUtils.getStackTrace(e));
+			return new ArrayList<GroupedProduct>();
+		}		
+	}
+
+	@Override
+	public List<GroupedProduct> groupQuery(Locale locale, String priceGroup, Currency currency, FilterList filterList,
 			String query, String groupBy, Integer pageSize, Integer currentPage, String sort) {
 		try {
 			SolrServer solr = new HttpSolrServer(url);
@@ -84,8 +134,7 @@ public class SolrProductDaoLiveImpl implements SolrProductDao {
 			List<GroupedProduct> groupedProducts = getGroupedProducts(rsp, locale, priceGroup,
 					currency.getCurrencyCode(), groupBy);
 			
-			updateFilterList(rsp, filterList);				
-
+			updateFilterList(rsp, filterList);
 
 			return groupedProducts;
 		} catch (Exception e) {
