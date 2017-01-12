@@ -9,6 +9,7 @@
 				class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 				<property name="locations">
 					<list>
+						<value>classpath:env-test/product-published/application.properties</value>
 						<value>classpath:env-test/product-published/db.properties</value>
 					</list>
 				</property>

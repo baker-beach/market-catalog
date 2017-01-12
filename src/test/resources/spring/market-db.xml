@@ -11,6 +11,25 @@
 
 	<context:annotation-config />
 
+    <bean id="mongoURI" class="com.mongodb.MongoClientURI">
+        <constructor-arg index="0" value="${mongo.uri}"/>
+    </bean>
+
+    <bean id="mongoClient" class="com.mongodb.MongoClient">
+        <constructor-arg index="0" type="com.mongodb.MongoClientURI" ref="mongoURI"/>
+    </bean>
+    
+    <bean id="morphia" class="org.mongodb.morphia.Morphia" />
+	
+	<bean id="datastore" factory-bean="datastoreFactory" factory-method="newInstance" />
+	
+	<bean id="datastoreFactory" class="com.bakerbeach.market.morphia.DatastoreFactory">
+		<property name="morphia" ref="morphia" />
+		<property name="mongoClient" ref="mongoClient" />
+		<property name="dbName" value="${mongo.dbName}" />
+		<property name="packages" value="com.bakerbeach.market.cart.model" />
+	</bean>
+
 	<mongo:mongo id="shop" host="${shop.mongo.host}"
 		port="${shop.mongo.port}">
 		<mongo:options connections-per-host="${mongo.connectionsPerHost}"
@@ -27,6 +46,8 @@
 	<bean id="shopTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
 		<constructor-arg name="mongoDbFactory" ref="shopDbFactory" />
 	</bean>
+	
+<!--  
 	<bean id="inventoryCacheTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
 		<constructor-arg name="mongoDbFactory" ref="shopDbFactory" />
 	</bean>
@@ -65,5 +86,6 @@
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="productInventoryDataSource" />
 	</bean>
+-->
 	
 </beans>

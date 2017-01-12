@@ -236,8 +236,12 @@ public abstract class AbstractProduct extends HashMap<String, Object> implements
 
 	@Override
 	public BigDecimal getDiscountOnStandardPrice() {
-		return (stdPrice.subtract(price)).divide(stdPrice, 4, BigDecimal.ROUND_HALF_DOWN).multiply(new BigDecimal(100))
-				.setScale(0, BigDecimal.ROUND_DOWN);
+		if (stdPrice.compareTo(BigDecimal.ZERO) != 0) {
+			return (stdPrice.subtract(price)).divide(stdPrice, 4, BigDecimal.ROUND_HALF_DOWN).multiply(new BigDecimal(100))
+					.setScale(0, BigDecimal.ROUND_DOWN);			
+		} else {
+			return BigDecimal.ZERO;
+		}
 	}
 
 	public BigDecimal getBasePrice1() {

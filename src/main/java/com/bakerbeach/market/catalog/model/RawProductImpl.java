@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Transient;
+
 import com.bakerbeach.market.core.api.model.Assets;
 import com.bakerbeach.market.core.api.model.ScaledPrice;
 import com.bakerbeach.market.core.api.model.Status;
 import com.bakerbeach.market.core.api.model.TaxCode;
 import com.bakerbeach.market.core.api.model.Type;
 
+@Entity(value="foo", noClassnameStored=true)
 public class RawProductImpl extends HashMap<String, Object> implements RawProduct {
 	private static final long serialVersionUID = 1L;
 
@@ -21,8 +25,8 @@ public class RawProductImpl extends HashMap<String, Object> implements RawProduc
 	private Status status = Status.UNDEFINED;
 	private String brand;
 	private String name;
-	private RawGroupTag primaryGroup;
-	private RawGroupTag secondaryGroup;	
+	@Transient private RawGroupTag primaryGroup;
+	@Transient private RawGroupTag secondaryGroup;	
 	private String mainCategory;
 	private List<String> categories = new ArrayList<String>();
 	private Boolean visible = false;

@@ -25,6 +25,12 @@
 		</dependency>
 		<dependency>
             <groupId>com.bakerbeach.market</groupId>
+			<artifactId>market-inventory</artifactId>
+            <version>[2.0.0,)</version>
+            <scope>test</scope>
+		</dependency>
+		<dependency>
+            <groupId>com.bakerbeach.market</groupId>
 			<artifactId>market-translation-api</artifactId>
             <version>1.0.0</version>
 		</dependency>
@@ -32,6 +38,11 @@
             <groupId>com.bakerbeach.market</groupId>
 			<artifactId>market-tax-api</artifactId>
             <version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bakerbeach.market</groupId>
+			<artifactId>market-morphia</artifactId>
+			<version>[1.0.0,2.0.0)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.solr</groupId>

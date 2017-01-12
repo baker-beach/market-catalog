@@ -7,7 +7,31 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
+	<bean id="catalogService"
+		class="com.bakerbeach.market.catalog.service.CatalogServiceImpl">
+		<property name="mongoProductDao" ref="mongoProductDao" />
+		<property name="inventoryService" ref="inventoryService" />
+		<property name="solrProductDao" ref="solrProductDao" />
+	</bean>
 
+	<bean id="mongoProductDao" class="com.bakerbeach.market.catalog.dao.MongoProductDao">
+		<property name="mongoTemplate" ref="shopTemplate" />
+		<property name="defaultCountryOfDelivery" value="DE" />
+		<property name="productCollection" value="product_published" />
+		<property name="productConverter" ref="productConverter" />
+		<property name="rawProductConverter" ref="rawProductConverter" />
+	</bean>
+	<bean id="productConverter" class="com.bakerbeach.market.catalog.dao.ProductConverter" />
+	<bean id="rawProductConverter" class="com.bakerbeach.market.catalog.dao.RawProductConverter" />
+
+	<bean id="inventoryService" class="com.bakerbeach.market.inventory.service.NoInventoryServiceImpl">
+	</bean>
+
+	<bean id="solrProductDao" class="com.bakerbeach.market.catalog.dao.SolrProductDaoLiveImpl">
+		<property name="url" value="${context.solrUrl}" />
+	</bean>
+	
+<!-- 
 	<bean id="catalogService" class="com.bakerbeach.market.catalog.service.CatalogServiceImpl">
 		<property name="mongoProductDao" ref="defaultProductDao" />
 		<property name="inventoryService" ref="euInventoryService" />
@@ -30,19 +54,12 @@
 
 	<bean id="defaultProductDao" class="com.bakerbeach.market.catalog.dao.MongoProductDao">
 		<property name="mongoTemplate" ref="shopTemplate" />
-		<!-- <property name="shop" value="MOMENT_EU"/> -->
-		<!-- <property name="collectionName" value="${moment.mongo.product.collection}" 
-			/> -->
 	</bean>
 
 	<bean id="euInventoryService" class="com.bakerbeach.market.core.service.inventory.InventoryServiceImpl">
 		<property name="inventoryDao" ref="inventoryDao" />
 		<property name="inventoryCacheDao" ref="inventoryCacheDao" />
 		<property name="transactionManager" ref="jdbcTxManager" />
-		<!--
-		<property name="transactionManager" ref="inventoryTxManager" />
-		<property name="catalogService" ref="catalogService" />
-		-->
 		<property name="shopsStorageLocations">
 			<bean class="java.util.HashMap">
 				<constructor-arg>
@@ -88,5 +105,6 @@
 		
 	<beans profile="product.published">
 	</beans>
+ -->
 
 </beans>
