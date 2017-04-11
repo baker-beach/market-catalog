@@ -1,7 +1,9 @@
 package com.bakerbeach.market.catalog.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.bakerbeach.market.core.api.model.BundleComponent;
 import com.bakerbeach.market.core.api.model.BundleOption;
@@ -19,6 +21,7 @@ public class BundleComponentImpl implements BundleComponent {
 	private Integer maxQty;
 	private Boolean isMultiselect = false;
 	private List<BundleOption> options = new ArrayList<BundleOption>();
+	private Map<String, Object> attributes = new HashMap<String, Object>();
 
 	@Override
 	public String getName() {
@@ -142,6 +145,11 @@ public class BundleComponentImpl implements BundleComponent {
 		}
 		
 		return null;
+	}
+
+	@Override
+	public Map<String,Object> getAttributes() {
+		return attributes;
 	}
 
 }

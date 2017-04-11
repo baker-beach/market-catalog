@@ -222,6 +222,11 @@ public class ProductConverter {
 				item.getOptions().add(option);
 			}
 		}
+		
+		if (source.containsField("attributes")) {
+			DBObject dbo = (DBObject) source.get("options");
+			item.getAttributes().putAll(dbo.toMap());
+		}
 
 		return item;
 	}
@@ -264,6 +269,11 @@ public class ProductConverter {
 			}
 		}
 
+		if (source.containsField("attributes")) {
+			DBObject dbo = (DBObject) source.get("options");
+			option.getAttributes().putAll(dbo.toMap());
+		}
+		
 		return option;
 	}
 

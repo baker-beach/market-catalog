@@ -18,7 +18,8 @@ public class BundleOptionImpl implements BundleOption {
 	private Boolean preset = false;
 	private Boolean isDefault = false;
 	private Boolean isRequired = false;
-
+	private Map<String, Object> attributes = new HashMap<String, Object>();
+	
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof BundleOption) {
@@ -125,4 +126,8 @@ public class BundleOptionImpl implements BundleOption {
 		this.prices = prices;
 	}
 	
+	@Override
+	public Map<String, Object> getAttributes() {
+		return attributes;
+	}
 }
