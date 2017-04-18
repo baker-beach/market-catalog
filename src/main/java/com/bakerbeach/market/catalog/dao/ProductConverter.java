@@ -224,7 +224,7 @@ public class ProductConverter {
 		}
 		
 		if (source.containsField("attributes")) {
-			DBObject dbo = (DBObject) source.get("options");
+			DBObject dbo = (DBObject) source.get("attributes");
 			item.getAttributes().putAll(dbo.toMap());
 		}
 
