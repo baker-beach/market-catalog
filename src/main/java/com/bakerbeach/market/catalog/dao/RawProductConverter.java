@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.LocaleUtils;
 
 import com.bakerbeach.market.catalog.model.RawAssetGroupImpl;
@@ -134,7 +135,13 @@ public class RawProductConverter {
 		
 		product.setColor((String) source.get("color"));
 		
-		product.put("colorpicker", (String) source.get("colorpicker"));
+		if (source.containsField("colorpicker")) {
+			if (source.get("colorpicker") instanceof List) {
+				product.put("colorpicker", (List<String>) source.get("colorpicker"));
+			} else if (source.get("colorpicker") instanceof String) {				
+				product.put("colorpicker", (String) source.get("colorpicker"));
+			}
+		}
 		
 		if (source.containsField("sort") && source.get("sort") != null) {
 			product.setSort((String) source.get("sort"));

@@ -24,16 +24,6 @@ public interface ProductDao {
 	List<Product> findByGtin(Locale locale, String priceGroup, Currency currency, String countryOfDelivery, Date date,
 			Collection<String> gtins);
 
-
-	
-	// ---
-	
-
-
-//	@Deprecated
-//	Collection<GroupedProduct> groupQueryByGtin(Locale locale, String priceGroup, Currency currency,
-//			String countryOfDelivery, Date date, Collection<String> gtins);
-
-	
+	void save(RawProduct product);
 	
 }

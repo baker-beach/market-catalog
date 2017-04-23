@@ -8,6 +8,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -20,6 +21,7 @@ import com.bakerbeach.market.catalog.model.AssetsImpl;
 import com.bakerbeach.market.catalog.model.BundleComponentImpl;
 import com.bakerbeach.market.catalog.model.BundleOptionImpl;
 import com.bakerbeach.market.catalog.model.BundleProductImpl;
+import com.bakerbeach.market.catalog.model.RawProduct;
 import com.bakerbeach.market.catalog.model.SimpleProductImpl;
 import com.bakerbeach.market.core.api.model.AssetGroup;
 import com.bakerbeach.market.core.api.model.BundleComponent;
@@ -29,9 +31,63 @@ import com.bakerbeach.market.core.api.model.Product;
 import com.bakerbeach.market.core.api.model.ScaledPrice;
 import com.bakerbeach.market.core.api.model.Status;
 import com.bakerbeach.market.core.api.model.TaxCode;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class ProductConverter {
+
+	public DBObject encode(RawProduct source) {
+		BasicDBObject product = new BasicDBObject();
+
+		product.put("gtin", source.getGtin());
+		product.put("type", "simple");
+		product.put("status", "PUBLISHED");
+		product.put("index", true);
+		product.put("visible", true);
+
+		product.put("primary_group", source.getPrimaryGroup().getCode());
+		product.put("secondary_group", source.getSecondaryGroup().getCode());
+
+		for (Entry<String, Object> e : source.entrySet()) {
+			product.put(e.getKey(), e.getValue());
+		}
+
+		BasicDBList categories = new BasicDBList();
+		categories.addAll(source.getCategories());
+		product.put("categories", categories);
+
+		product.put("tags", source.getTags());
+		product.put("logos", source.getLogos());
+
+		product.put("size", source.getSize());
+		product.put("color", source.getColor());
+
+		BasicDBList stdPrices = new BasicDBList();
+		source.getStdPrices().forEach(p -> {
+			BasicDBObject price = new BasicDBObject();
+			price.put("group", p.getGroup());
+			price.put("start", p.getStart());
+			price.put("currency", p.getCurrency().getCurrencyCode());
+			price.put("value", p.getValue().doubleValue());
+			stdPrices.add(price);
+		});
+		product.put("std_prices", stdPrices);
+
+		BasicDBList prices = new BasicDBList();
+		source.getStdPrices().forEach(p -> {
+			BasicDBObject price = new BasicDBObject();
+			price.put("group", p.getGroup());
+			price.put("start", p.getStart());
+			price.put("currency", p.getCurrency().getCurrencyCode());
+			price.put("value", p.getValue().doubleValue());
+			prices.add(price);
+		});
+
+		product.put("prices", prices);
+
+		return product;
+	}
 
 	public Product decode(Locale locale, String priceGroup, String defaultPriceGroup, Currency currency,
 			String countryOfDelivery, String defaultCountryOfDelivery, Date date, DBObject source) {
@@ -222,7 +278,7 @@ public class ProductConverter {
 				item.getOptions().add(option);
 			}
 		}
-		
+
 		if (source.containsField("attributes")) {
 			DBObject dbo = (DBObject) source.get("attributes");
 			item.getAttributes().putAll(dbo.toMap());
@@ -273,7 +329,7 @@ public class ProductConverter {
 			DBObject dbo = (DBObject) source.get("attributes");
 			option.getAttributes().putAll(dbo.toMap());
 		}
-		
+
 		return option;
 	}
 

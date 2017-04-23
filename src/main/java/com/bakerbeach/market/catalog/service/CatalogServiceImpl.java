@@ -299,11 +299,11 @@ public class CatalogServiceImpl implements CatalogService {
 		this.inventoryService = inventoryService;
 	}
 
-//	@Override
-//	public CatalogSearchResult findGroupedProductsByGtin(Locale locale, String priceGroup, Currency currency,
-//			String countryOfDelivery, Date now, Collection<String> gtins) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+	@Override
+	public void save(RawProduct product) {
+		
+		mongoProductDao.save(product);
+		
+	}
 
 }

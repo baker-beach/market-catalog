@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -263,6 +264,15 @@ public class MongoProductDao implements ProductDao {
 		}
 
 		return group;
+	}
+
+	@Override
+	public void save(RawProduct product) {
+		QueryBuilder qb = QueryBuilder.start();
+		qb.and("gtin").in(Arrays.asList(product.getGtin()));
+		
+		DBObject dbo = productConverter.encode(product);
+		getProductCollection().findAndModify(qb.get(), null, null, false, new BasicDBObject("$set", dbo), false, true);
 	}
 
 	protected DBCollection getProductCollection() {
