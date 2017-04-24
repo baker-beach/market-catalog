@@ -60,9 +60,9 @@ public class CatalogServiceImpl implements CatalogService {
 
 	@Override
 	public CatalogSearchResult findGroupByGroupCode(Locale locale, String priceGroup, Currency currency,
-			String countryOfDelivery, Date date, Collection<String> primaryGroups) {
+			String countryOfDelivery, Date date, Collection<String> primaryGroups, String groupField) {
 		Collection<GroupedProduct> products = mongoProductDao.findGroupByGroupCode(locale, priceGroup, currency,
-				primaryGroups, countryOfDelivery, date, "primaryGroup");
+				primaryGroups, countryOfDelivery, date, groupField);
 		setInventory(products);
 		refineProduct(products);
 		
@@ -72,6 +72,12 @@ public class CatalogServiceImpl implements CatalogService {
 		return catalogSearchResult;
 	}
 
+	@Override
+	public CatalogSearchResult findGroupByGroupCode(Locale locale, String priceGroup, Currency currency,
+			String countryOfDelivery, Date date, Collection<String> primaryGroups) {
+		return findGroupByGroupCode(locale, priceGroup, currency, countryOfDelivery, date, primaryGroups, "primaryGroup");
+	}
+	
 	@Override
 	public CatalogSearchResult groupIndexQuery(Locale locale, String priceGroup, Currency currency,
 			String assortmentCode, String countryOfDelivery, Date date, FilterList filterList, String query, List<String> filterQueries,
