@@ -2,6 +2,7 @@ package com.bakerbeach.market.catalog.dao;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -139,7 +140,7 @@ public class RawProductConverter {
 			if (source.get("colorpicker") instanceof List) {
 				product.put("colorpicker", (List<String>) source.get("colorpicker"));
 			} else if (source.get("colorpicker") instanceof String) {				
-				product.put("colorpicker", (String) source.get("colorpicker"));
+				product.put("colorpicker", Arrays.asList((String) source.get("colorpicker")));
 			}
 		}
 		

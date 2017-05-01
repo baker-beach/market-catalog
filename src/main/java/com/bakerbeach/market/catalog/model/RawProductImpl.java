@@ -34,7 +34,7 @@ public class RawProductImpl extends HashMap<String, Object> implements RawProduc
 	private List<ScaledPrice> prices = new ArrayList<ScaledPrice>();
 	private Map<String, List<String>> logos = new HashMap<String, List<String>>();
 	private Map<String, List<String>> tags = new HashMap<String, List<String>>();
-	private Assets assets = null;
+	private Assets assets = new RawAssetsImpl();
 	private String size;
 	private String color;
 	private String diet;
