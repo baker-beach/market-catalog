@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -11,6 +13,8 @@ import org.mongodb.morphia.query.Query;
 
 import com.bakerbeach.market.xcatalog.model.Group;
 import com.bakerbeach.market.xcatalog.model.Product;
+import com.bakerbeach.market.xcatalog.model.Product.Status;
+import com.bakerbeach.market.xcatalog.model.Product.Type;
 
 public abstract class AbstractMorphiaProductDao<G extends Group, P extends Product> implements MongoProductDao {
 	protected Morphia morphia = new Morphia();
@@ -32,6 +36,40 @@ public abstract class AbstractMorphiaProductDao<G extends Group, P extends Produ
 		this.productClass = productClass;
 		this.productCollectionName = productCollectionName;
 		this.groupCollectionName = groupCollectionName;
+	}
+
+	@Override
+	public List<String> productCodes(String shopCode, Collection<Type> types, Collection<Status> status, String order,
+			Integer offset, Integer limit) {
+		Query<P> query = ((AdvancedDatastore) datastore).createQuery(productCollectionName, productClass)
+				.retrievedFields(true, "code").field("shopCode").equal(shopCode);
+		
+		if (CollectionUtils.isNotEmpty(types)) {
+			query.field("type").in(types);
+		}
+		
+		if (CollectionUtils.isNotEmpty(status)) {
+			query.field("status").in(status);
+		}
+		
+		if (StringUtils.isNotBlank(order)) {
+			query.order(order);
+		}
+		
+		if (offset != null) {
+			query.offset(offset);
+		}
+		
+		if (limit != null) {
+			query.limit(limit);
+		}
+		
+		List<String> list = new ArrayList<>();
+		query.forEach(p -> {
+			list.add(p.getCode());
+		});
+
+		return list;
 	}
 
 	@Override

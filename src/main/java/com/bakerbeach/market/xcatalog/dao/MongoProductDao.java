@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.bakerbeach.market.xcatalog.model.Group;
 import com.bakerbeach.market.xcatalog.model.Product;
+import com.bakerbeach.market.xcatalog.model.Product.Status;
+import com.bakerbeach.market.xcatalog.model.Product.Type;
 
 public interface MongoProductDao {
 
@@ -20,5 +22,8 @@ public interface MongoProductDao {
 	void groupSave(Group group);
 
 	Group newInstance(String code, String shopCode) throws InstantiationException, IllegalAccessException;
+
+	List<String> productCodes(String shopCode, Collection<Type> types, Collection<Status> status, String order,
+			Integer offset, Integer limit);
 
 }

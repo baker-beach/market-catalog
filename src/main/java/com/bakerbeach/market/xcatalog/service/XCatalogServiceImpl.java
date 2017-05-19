@@ -30,6 +30,16 @@ public class XCatalogServiceImpl implements XCatalogService {
 	protected Map<String, SolrProductDao> solrProductDaos;
 
 	@Override
+	public List<String> productCodes(String shopCode, Collection<Product.Type> types,
+			Collection<Product.Status> status, Integer pageSize, Integer currentPage, String sort) {
+		
+		Integer offset = (pageSize != null && currentPage != null)? Math.abs(currentPage * pageSize) : 0;
+
+		List<String> list = mongoProductDaos.get(shopCode).productCodes(shopCode, types, status, sort, offset, pageSize);
+		return list;
+	}
+
+	@Override
 	public List<Product> rawByGtin(String shopCode, Product.Status status, Collection<String> codes) {
 		List<Product> list = mongoProductDaos.get(shopCode).byCode(shopCode, status,
 				Arrays.asList(Product.Type.PRODUCT), codes);
@@ -102,6 +112,43 @@ public class XCatalogServiceImpl implements XCatalogService {
 		mongoProductDaos.get(shopCode).groupSave(group);
 	}
 
+	/*
+	@Override
+	public SearchResult groupByCode(String shopCode, Product.Status status, Locale locale, String priceGroup,
+			Currency currency, String countryOfDelivery, Date date, String groupBy, List<String> codes)
+			throws XCatalogServiceException {
+		try {
+			if (StringUtils.isBlank(groupBy)) {
+				groupBy = "primaryGroup";
+			}
+
+			Map<String, Group> groups = new HashMap<>();
+
+			List<Product> products = mongoProductDaos.get(shopCode).productByGroupCode(shopCode, status, groupBy,
+					codes);
+			for (Product product : products) {
+				try {
+					String key = BeanUtils.getProperty(product, groupBy);
+
+					if (!groups.containsKey(key)) {
+						groups.put(key, mongoProductDaos.get(shopCode).newInstance(key, shopCode));
+					}
+					groups.get(key).getMembers().add(product);
+
+				} catch (InvocationTargetException | NoSuchMethodException e) {
+					log.error(ExceptionUtils.getStackTrace(e));
+				}
+			}
+
+			SearchResult result = new SearchResult();
+
+			return result;
+		} catch (Exception e) {
+			throw new XCatalogServiceException(e);
+		}
+	}
+	*/
+	
 //	@Override
 //	public Price getPrice(List<Price> prices, Currency currency, String priceGroup, Date date) {
 //		Price price = null;
