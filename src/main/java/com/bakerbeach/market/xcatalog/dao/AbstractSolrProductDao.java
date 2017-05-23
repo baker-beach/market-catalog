@@ -205,23 +205,27 @@ public abstract class AbstractSolrProductDao<G extends Group, P extends Product>
 						}
 						logos.get(parts[0]).addAll((List<String>) e.getValue());
 					} else if (e.getKey().endsWith("_price")) {
-						String[] parts = e.getKey().split("_");
-						String key = parts[0] + parts[1];
-						if (!priceMap.containsKey(key)) {
-							PriceImpl price = new PriceImpl();
-							price.setStart(activeFrom);
-							price.setCurrency(Currency.getInstance(parts[0]));
-							price.setGroup(parts[1]);
-							priceMap.put(key, price);
-						}
-						if (parts.length == 3) {
-							BigDecimal value = BigDecimal.valueOf((float) e.getValue());
-							priceMap.get(key).setValue(value);
-							priceMap.get(key).setTag("std");
-						} else if (parts.length == 4) {
-							BigDecimal value = BigDecimal.valueOf((float) e.getValue());
-							priceMap.get(key).setValue(value);
-							priceMap.get(key).setTag(parts[2]);
+						try {
+							String[] parts = e.getKey().split("_");
+							String key = parts[0] + parts[1];
+							if (!priceMap.containsKey(key)) {
+								PriceImpl price = new PriceImpl();
+								price.setStart(activeFrom);
+								price.setCurrency(Currency.getInstance(parts[0].toUpperCase()));
+								price.setGroup(parts[1]);
+								priceMap.put(key, price);
+							}
+							if (parts.length == 3) {
+								BigDecimal value = BigDecimal.valueOf((float) e.getValue());
+								priceMap.get(key).setValue(value);
+								priceMap.get(key).setTag("std");
+							} else if (parts.length == 4) {
+								BigDecimal value = BigDecimal.valueOf((float) e.getValue());
+								priceMap.get(key).setValue(value);
+								priceMap.get(key).setTag(parts[2]);
+							}
+						} catch (Exception ee) {
+							log.error(ExceptionUtils.getStackTrace(ee));
 						}
 					}
 				});
