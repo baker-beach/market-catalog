@@ -45,6 +45,8 @@ public class ProductConverter {
 		product.put("status", "PUBLISHED");
 		product.put("index", true);
 		product.put("visible", true);
+		
+		product.put("sort", source.getSort());
 
 		product.put("primary_group", source.getPrimaryGroup().getCode());
 		product.put("secondary_group", source.getSecondaryGroup().getCode());
