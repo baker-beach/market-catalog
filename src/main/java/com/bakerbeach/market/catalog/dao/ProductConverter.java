@@ -88,6 +88,12 @@ public class ProductConverter {
 
 		product.put("prices", prices);
 
+		DBObject taxCodes = new BasicDBObject();
+		for (Entry<String, TaxCode> e : source.getTaxCodes().entrySet()) {
+			taxCodes.put(e.getKey(), e.getValue().name());
+		}
+		product.put("tax_codes", taxCodes);
+
 		return product;
 	}
 
