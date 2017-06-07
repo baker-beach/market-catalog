@@ -49,7 +49,9 @@ public class ProductImpl implements Product, PriceAware {
 	@Property("required")
 	protected Boolean isRequired = false;
 	@Property("available")
-	protected Boolean isAvailable = true;
+	protected Boolean isAvailable = true;	
+	@Property("configurable")
+	protected Boolean isConfigurable = false;
 	@Property("size_code")
 	protected String sizeCode;
 	@Property("color_code")
@@ -312,6 +314,15 @@ public class ProductImpl implements Product, PriceAware {
 
 	public void setIsAvailable(Boolean isAvailable) {
 		this.isAvailable = isAvailable;
+	}
+	
+	@Override
+	public Boolean isConfigurable() {
+		return isConfigurable;
+	}
+	
+	public void setIsConfigurable(Boolean isConfigurable) {
+		this.isConfigurable = isConfigurable;
 	}
 
 	@Override
