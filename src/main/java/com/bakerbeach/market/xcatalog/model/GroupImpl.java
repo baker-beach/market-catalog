@@ -2,8 +2,7 @@ package com.bakerbeach.market.xcatalog.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Currency;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,21 +32,16 @@ public class GroupImpl implements Group {
 	protected Map<String, BigDecimal> minPrices;
 	@Transient
 	protected List<Product> members = new ArrayList<>();
+	@Transient
+	protected Map<String, Price> cachedMinPrices = new HashMap<>();
+
+	public Map<String, Price> getCachedMinPrices() {
+		return cachedMinPrices;
+	}
 
 	@Override
-	public Price getMinPrice(Currency currency, String priceGroup, Date date) {
-		PriceImpl minPrice = new PriceImpl();
-		minPrice.setCurrency(currency);
-		minPrice.setGroup(priceGroup);
-
-		for (Product product : getMembers()) {
-			Price price = product.getPrice(currency, priceGroup, date);	
-			BigDecimal value = price.getValue();
-			value = minPrice.getValue() != null ? minPrice.getValue().min(value) : value;
-			minPrice.setValue(value);
-		}
-		
-		return minPrice;
+	public void setCachedMinPrices(Map<String, Price> cachedMinPrices) {
+		this.cachedMinPrices = cachedMinPrices;
 	}
 
 	@Override
@@ -74,12 +68,12 @@ public class GroupImpl implements Group {
 	public Status getStatus() {
 		return status;
 	}
-	
+
 	@Override
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	
+
 	@Override
 	public String getDim1() {
 		return dim1;
@@ -99,12 +93,12 @@ public class GroupImpl implements Group {
 	public void setDim2(String dim2) {
 		this.dim2 = dim2;
 	}
-	
+
 	@Override
 	public String getTemplate() {
 		return template;
 	}
-	
+
 	@Override
 	public void setTemplate(String template) {
 		this.template = template;

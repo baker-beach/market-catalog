@@ -1,9 +1,11 @@
 package com.bakerbeach.market.xcatalog.model;
 
+import java.io.Serializable;
+
 import com.bakerbeach.market.xcatalog.model.Asset;
 
 //@Entity(noClassnameStored = true)
-public class AssetImpl implements Asset {
+public class AssetImpl implements Asset, Serializable {
 //	@Id protected ObjectId id;
 	
 	private String type;

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -81,7 +82,10 @@ public abstract class AbstractMorphiaProductDao<G extends Group, P extends Produ
 
 		List<Product> products = new ArrayList<>();
 		query.forEach(i -> {
-			products.add(i);
+			try {
+				products.add(i);				
+			} catch (Exception e) {
+			}
 		});
 
 		return products;

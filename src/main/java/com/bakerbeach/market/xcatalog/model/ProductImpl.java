@@ -2,8 +2,6 @@ package com.bakerbeach.market.xcatalog.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Currency;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +13,7 @@ import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Property;
+import org.mongodb.morphia.annotations.Transient;
 
 import com.bakerbeach.market.core.api.model.TaxCode;
 
@@ -27,10 +26,11 @@ public class ProductImpl implements Product, PriceAware {
 	protected String gtin;
 	@Property("shop_code")
 	protected List<String> shopCode = new ArrayList<>();
-	protected Status status;
+	protected Status status = Product.Status.PUBLISHED;
 	@Property("parent_code")
 	protected String parentCode;
-	protected Type type;
+	protected Type type = Product.Type.PRODUCT;
+	protected Unit unit = Product.Unit.SINGLE;
 	protected String brand;
 	@Property("primary_group")
 	protected String primaryGroup;
@@ -49,7 +49,7 @@ public class ProductImpl implements Product, PriceAware {
 	@Property("required")
 	protected Boolean isRequired = false;
 	@Property("available")
-	protected Boolean isAvailable = true;	
+	protected Boolean isAvailable = true;
 	@Property("configurable")
 	protected Boolean isConfigurable = false;
 	@Property("size_code")
@@ -74,40 +74,89 @@ public class ProductImpl implements Product, PriceAware {
 	protected LinkedHashMap<String, Component> components = new LinkedHashMap<>();
 	@Embedded
 	protected LinkedHashMap<String, Option> options = new LinkedHashMap<>();
-	protected List<String> categories = new ArrayList<>();	
-	
-	private static Price getPrice(List<Price> prices, Currency currency, String priceGroup, Date date) {
-		Price price = null;
-		Price defaultPrice = null;
+	protected List<String> categories = new ArrayList<>();
+	@Transient
+	protected Map<String, Price> cachedPrices = new HashMap<>();
 
-		for (Price p : prices) {
-			Date start = p.getStart();
-			if (!start.after(date)) {
-				if (currency.equals(p.getCurrency())) {
-					if (priceGroup.equals(p.getGroup())) {
-						if (price == null) {
-							price = p;
-						} else if (price.getStart().before(p.getStart())) {
-							price = p;
-						}
-					} else if ("default".equalsIgnoreCase(p.getGroup())) {
-						if (defaultPrice == null) {
-							defaultPrice = p;
-						} else if (defaultPrice.getStart().before(p.getStart())) {
-							defaultPrice = p;
-						}
-					}
-				}
-			}
-		}
+	/*
+	 * public static Map<String, Price> getPrice(List<Price> prices, Currency
+	 * currency, String priceGroup, Date date) { Map<String, Price> priceMap =
+	 * new HashMap<>(); Map<String, Price> defaultPriceMap = new HashMap<>();
+	 * 
+	 * for (Price p : prices) { String tag = p.getTag();
+	 * 
+	 * Date start = p.getStart(); if (!start.after(date)) { if
+	 * (currency.equals(p.getCurrency())) { if (priceGroup.equals(p.getGroup()))
+	 * { if (priceMap.get(tag) == null) { priceMap.put(tag, p); } else if
+	 * (priceMap.get(tag).getStart().before(p.getStart())) { priceMap.put(tag,
+	 * p); } } else if ("default".equalsIgnoreCase(p.getGroup())) { if
+	 * (defaultPriceMap.get(tag) == null) { defaultPriceMap.put(tag, p); } else
+	 * if (defaultPriceMap.get(tag).getStart().before(p.getStart())) {
+	 * defaultPriceMap.put(tag, p); } } } } }
+	 * 
+	 * // get default prices --- defaultPriceMap.forEach((tag, price) -> { if
+	 * (!priceMap.containsKey(tag)) { priceMap.put(tag, price); } });
+	 * 
+	 * return priceMap; }
+	 * 
+	 * public static Price getPrice(List<Price> prices, String tag, Currency
+	 * currency, String priceGroup, Date date) { Price price = null; Price
+	 * defaultPrice = null;
+	 * 
+	 * for (Price p : prices) { if (tag.equals(p.getTag())) { Date start =
+	 * p.getStart(); if (!start.after(date)) { if
+	 * (currency.equals(p.getCurrency())) { if (priceGroup.equals(p.getGroup()))
+	 * { if (price == null) { price = p; } else if
+	 * (price.getStart().before(p.getStart())) { price = p; } } else if
+	 * ("default".equalsIgnoreCase(p.getGroup())) { if (defaultPrice == null) {
+	 * defaultPrice = p; } else if
+	 * (defaultPrice.getStart().before(p.getStart())) { defaultPrice = p; } } }
+	 * } } }
+	 * 
+	 * return (price != null) ? price : (defaultPrice != null) ? defaultPrice :
+	 * null; }
+	 */
 
-		return (price != null) ? price : (defaultPrice != null) ? defaultPrice : null;
-	}
-	
-	
+	// @Override
+	// public Price getPrice(String tag, Currency currency, String priceGroup,
+	// Date date) {
+	// return ProductImpl.getPrice(prices, tag, currency, priceGroup, date);
+	// }
+
+	// @Override
+	// public Price getPrice(Currency currency, String priceGroup, Date date) {
+	// return getPrice("std", currency, priceGroup, date);
+	// }
+
+	// @Override
+	// public Map<String, Price> getCurrentPrices(Currency currency, String
+	// priceGroup, Date date) {
+	// return ProductImpl.getPrice(prices, currency, priceGroup, date);
+	// }
+
 	@Override
-	public Price getPrice(Currency currency, String priceGroup, Date date) {
-		return ProductImpl.getPrice(prices, currency, priceGroup, date);
+	public List<Price> getPrices() {
+		return prices;
+	}
+
+	@Override
+	public void setPrices(List<Price> prices) {
+		this.prices = prices;
+	}
+
+	@Override
+	public void addPrice(Price price) {
+		this.prices.add(price);
+	}
+
+	@Override
+	public Map<String, Price> getCachedPrices() {
+		return cachedPrices;
+	}
+
+	@Override
+	public void setCachedPrices(Map<String, Price> cachedPrices) {
+		this.cachedPrices = cachedPrices;
 	}
 
 	@Override
@@ -123,12 +172,12 @@ public class ProductImpl implements Product, PriceAware {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public String getGtin() {
 		return gtin;
@@ -142,7 +191,7 @@ public class ProductImpl implements Product, PriceAware {
 	public List<String> getShopCode() {
 		return shopCode;
 	}
-	
+
 	@Override
 	public void addShopCode(String shopCode) {
 		this.shopCode.add(shopCode);
@@ -178,6 +227,16 @@ public class ProductImpl implements Product, PriceAware {
 	}
 
 	@Override
+	public Unit getUnit() {
+		return unit;
+	}
+
+	@Override
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	@Override
 	public String getBrand() {
 		return brand;
 	}
@@ -202,20 +261,6 @@ public class ProductImpl implements Product, PriceAware {
 
 	public void setSecondaryGroup(String secondaryGroup) {
 		this.secondaryGroup = secondaryGroup;
-	}
-
-	@Override
-	public List<Price> getPrices() {
-		return prices;
-	}
-
-	public void setPrices(List<Price> prices) {
-		this.prices = prices;
-	}
-
-	@Override
-	public void addPrice(Price price) {
-		this.prices.add(price);
 	}
 
 	public BigDecimal getBasePrice1Divisor() {
@@ -254,6 +299,16 @@ public class ProductImpl implements Product, PriceAware {
 	}
 
 	@Override
+	public Map<String, List<Map<String, Asset>>> getAssets() {
+		return assets;
+	}
+
+	@Override
+	public void setAssets(Map<String, List<Map<String, Asset>>> assets) {
+		this.assets = assets;
+	}
+
+	@Override
 	public List<Asset> getAssets(String tag, String size) {
 		List<Asset> toBeReturned = new ArrayList<Asset>();
 
@@ -282,12 +337,12 @@ public class ProductImpl implements Product, PriceAware {
 	public Map<String, Component> getComponents() {
 		return components;
 	}
-	
+
 	@Override
 	public Component getComponent(String code) {
-		return StringUtils.isNotEmpty(code)? components.get(code) : null;
+		return StringUtils.isNotEmpty(code) ? components.get(code) : null;
 	}
-	
+
 	@Override
 	public Map<String, Option> getOptions() {
 		return options;
@@ -295,9 +350,9 @@ public class ProductImpl implements Product, PriceAware {
 
 	@Override
 	public Option getOption(String code) {
-		return StringUtils.isNotEmpty(code)? options.get(code) : null;
+		return StringUtils.isNotEmpty(code) ? options.get(code) : null;
 	}
-	
+
 	@Override
 	public Boolean isRequired() {
 		return isRequired;
@@ -315,12 +370,12 @@ public class ProductImpl implements Product, PriceAware {
 	public void setIsAvailable(Boolean isAvailable) {
 		this.isAvailable = isAvailable;
 	}
-	
+
 	@Override
 	public Boolean isConfigurable() {
 		return isConfigurable;
 	}
-	
+
 	public void setIsConfigurable(Boolean isConfigurable) {
 		this.isConfigurable = isConfigurable;
 	}
@@ -414,16 +469,16 @@ public class ProductImpl implements Product, PriceAware {
 	public void setTaxCode(TaxCode taxCode) {
 		this.taxCode = taxCode;
 	}
-	
+
 	@Override
 	public List<String> getCategories() {
 		return categories;
 	}
-	
+
 	public void setCategories(List<String> categories) {
 		this.categories = categories;
 	}
-	
+
 	public static class ComponentImpl implements Component {
 		protected String code;
 		protected String parentCode;
@@ -435,7 +490,7 @@ public class ProductImpl implements Product, PriceAware {
 		public Boolean isRequired() {
 			return minQty.compareTo(BigDecimal.ZERO) == 1;
 		}
-		
+
 		@Override
 		public String getCode() {
 			return code;
@@ -487,7 +542,7 @@ public class ProductImpl implements Product, PriceAware {
 		}
 
 	}
-	
+
 	public static class OptionImpl implements Option, PriceAware {
 		protected String code;
 		protected String gtin;
@@ -499,7 +554,9 @@ public class ProductImpl implements Product, PriceAware {
 		protected Boolean isMultiselect = false;
 		protected Boolean isDefault = false;
 		protected List<Price> prices = new ArrayList<Price>();
-		
+		@Transient
+		protected Map<String, Price> cachedPrices = new HashMap<>();
+
 		@Override
 		public boolean isRequired() {
 			return minQty.compareTo(BigDecimal.ZERO) == 1;
@@ -514,12 +571,12 @@ public class ProductImpl implements Product, PriceAware {
 		public void setCode(String code) {
 			this.code = code;
 		}
-		
+
 		@Override
 		public String getGtin() {
 			return gtin;
 		}
-		
+
 		@Override
 		public void setGtin(String gtin) {
 			this.gtin = gtin;
@@ -529,22 +586,22 @@ public class ProductImpl implements Product, PriceAware {
 		public String getComponentCode() {
 			return componentCode;
 		}
-		
+
 		@Override
 		public void setComponentCode(String componentCode) {
 			this.componentCode = componentCode;
 		}
-		
+
 		@Override
 		public String getTag() {
 			return tag;
 		}
-		
+
 		@Override
 		public void setTag(String tag) {
 			this.tag = tag;
 		}
-		
+
 		@Override
 		public BigDecimal getMinQty() {
 			return minQty;
@@ -564,12 +621,12 @@ public class ProductImpl implements Product, PriceAware {
 		public void setMaxQty(BigDecimal maxQty) {
 			this.maxQty = maxQty;
 		}
-		
+
 		@Override
-		public BigDecimal getDefaultQty() {			
-			return defaultQty != null? defaultQty : minQty;
+		public BigDecimal getDefaultQty() {
+			return defaultQty != null ? defaultQty : minQty;
 		}
-		
+
 		@Override
 		public void setDefaultQty(BigDecimal defaultQty) {
 			this.defaultQty = defaultQty;
@@ -584,12 +641,12 @@ public class ProductImpl implements Product, PriceAware {
 		public void setIsMultiselect(Boolean isMultiselect) {
 			this.isMultiselect = isMultiselect;
 		}
-		
+
 		@Override
 		public Boolean isDefault() {
 			return isDefault;
 		}
-		
+
 		@Override
 		public void setIsDefault(Boolean isDefault) {
 			this.isDefault = isDefault;
@@ -601,13 +658,23 @@ public class ProductImpl implements Product, PriceAware {
 		}
 
 		@Override
+		public void setPrices(List<Price> prices) {
+			this.prices = prices;
+		}
+
+		@Override
 		public void addPrice(Price price) {
 			prices.add(price);
 		}
 
 		@Override
-		public Price getPrice(Currency currency, String priceGroup, Date date) {
-			return ProductImpl.getPrice(prices, currency, priceGroup, date);
+		public Map<String, Price> getCachedPrices() {
+			return cachedPrices;
+		}
+
+		@Override
+		public void setCachedPrices(Map<String, Price> cachedPrices) {
+			this.cachedPrices = cachedPrices;
 		}
 
 	}

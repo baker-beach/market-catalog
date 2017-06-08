@@ -1,10 +1,12 @@
 package com.bakerbeach.market.xcatalog.dao;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,9 +24,12 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bakerbeach.market.xcatalog.model.Asset;
+import com.bakerbeach.market.xcatalog.model.AssetImpl;
 import com.bakerbeach.market.xcatalog.model.CategoryFacetImpl;
 import com.bakerbeach.market.xcatalog.model.Facet;
 import com.bakerbeach.market.xcatalog.model.FacetOption;
@@ -43,7 +48,8 @@ public abstract class AbstractSolrProductDao<G extends Group, P extends Product>
 	private static final Integer DEFAULT_LIMIT = 120;
 
 	private String url;
-	
+	private ObjectMapper mapper = new ObjectMapper();
+
 	protected Class<P> productClass;
 	protected Class<G> groupClass;
 
@@ -175,11 +181,16 @@ public abstract class AbstractSolrProductDao<G extends Group, P extends Product>
 				Map<String, PriceImpl> priceMap = new HashMap<>();
 				Map<String, List<String>> tags = productImpl.getTags();
 				Map<String, List<String>> logos = productImpl.getLogos();
+				Map<String, List<Map<String, Asset>>> assets = new HashMap<>();
 
 				// TODO: listing and variants
 				doc.forEach(e -> {
 					if (e.getKey().equals("code")) {
 						productImpl.setCode((String) e.getValue());
+					} else if (e.getKey().equals("type")) {
+						productImpl.setType(Product.Type.valueOf((String) e.getValue()));
+					} else if (e.getKey().equals("unit_code")) {
+						productImpl.setUnit(Product.Unit.valueOf((String) e.getValue()));
 					} else if (e.getKey().equals("gtin")) {
 						productImpl.setGtin((String) e.getValue());
 					} else if (e.getKey().equals("primary_group")) {
@@ -207,28 +218,50 @@ public abstract class AbstractSolrProductDao<G extends Group, P extends Product>
 					} else if (e.getKey().endsWith("_price")) {
 						try {
 							String[] parts = e.getKey().split("_");
-							String key = parts[0] + parts[1];
+							
+							StringBuilder keyBuilder = new StringBuilder(parts[0]).append(parts[1]);
+							if (parts.length == 3) {
+								keyBuilder.append("std");
+							} else if (parts.length == 4) {
+								keyBuilder.append(parts[2]);
+							}
+							String key = keyBuilder.toString();
+							
 							if (!priceMap.containsKey(key)) {
 								PriceImpl price = new PriceImpl();
 								price.setStart(activeFrom);
 								price.setCurrency(Currency.getInstance(parts[0].toUpperCase()));
 								price.setGroup(parts[1]);
+								price.setTag(parts[2]);
+								price.setValue(BigDecimal.valueOf((float) e.getValue()));
 								priceMap.put(key, price);
-							}
-							if (parts.length == 3) {
-								BigDecimal value = BigDecimal.valueOf((float) e.getValue());
-								priceMap.get(key).setValue(value);
-								priceMap.get(key).setTag("std");
-							} else if (parts.length == 4) {
-								BigDecimal value = BigDecimal.valueOf((float) e.getValue());
-								priceMap.get(key).setValue(value);
-								priceMap.get(key).setTag(parts[2]);
 							}
 						} catch (Exception ee) {
 							log.error(ExceptionUtils.getStackTrace(ee));
 						}
-					}
+					} else if (e.getKey().equals("base_price_1_divisor")) {
+						productImpl.setBasePrice1Divisor(BigDecimal.valueOf((float) e.getValue()));
+					} else if (e.getKey().equals("base_price_2_divisor")) {
+						productImpl.setBasePrice2Divisor(BigDecimal.valueOf((float) e.getValue()));
+					} else if (e.getKey().equals("base_price_1_unit_code")) {
+						productImpl.setBasePrice1Unit((String) e.getValue());
+					} else if (e.getKey().equals("base_price_2_unit_code")) {
+						productImpl.setBasePrice2Unit((String) e.getValue());
+					} else if (e.getKey().equals("assets")) {
+						try {
+							AssetMap map = mapper.readValue((String) e.getValue(), AssetMap.class);
+							
+							for (String tag : map.keySet()) {
+								for (Map<String, AssetImpl> group : map.get(tag)) {
+									productImpl.addAsset(tag, new HashMap<>(group));
+								}
+							}
+						} catch (IOException ee) {
+							log.error(ExceptionUtils.getStackTrace(ee));
+						}
+					}					
 				});
+				
 				productImpl.getPrices().addAll(priceMap.values());
 			}
 
@@ -238,6 +271,10 @@ public abstract class AbstractSolrProductDao<G extends Group, P extends Product>
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	private static class AssetMap extends LinkedHashMap<String, ArrayList<LinkedHashMap<String, AssetImpl>>> {
+		private static final long serialVersionUID = 1L;
 	}
 
 	private void setFacetFilter(SolrQuery query, Facets filterList) {
@@ -411,5 +448,8 @@ public abstract class AbstractSolrProductDao<G extends Group, P extends Product>
 		}
 
 	}
-
+	
+	private static class AssetsWrap extends HashMap<String, List<Map<String, Asset>>> {
+		
+	}
 }
