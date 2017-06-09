@@ -48,7 +48,7 @@ public abstract class AbstractSolrProductDao<G extends Group, P extends Product>
 	private static final Integer DEFAULT_LIMIT = 120;
 
 	private String url;
-	private ObjectMapper mapper = new ObjectMapper();
+	protected ObjectMapper mapper = new ObjectMapper();
 
 	protected Class<P> productClass;
 	protected Class<G> groupClass;

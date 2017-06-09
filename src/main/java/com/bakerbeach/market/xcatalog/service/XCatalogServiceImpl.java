@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,9 +109,18 @@ public class XCatalogServiceImpl implements XCatalogService {
 
 	}
 
-	private void refine(Product member, Date date, Currency currency, String priceGroup) {
-		Map<String, Price> currentPrices = getCurrentPrices(member, currency, priceGroup, date);
-		member.setCachedPrices(currentPrices);
+	private void refine(Product product, Date date, Currency currency, String priceGroup) {
+		{
+			Map<String, Price> currentPrices = getCurrentPrices(product, currency, priceGroup, date);
+			product.setCachedPrices(currentPrices);			
+		}
+		
+		if (MapUtils.isNotEmpty(product.getOptions())) {
+			product.getOptions().forEach((key, option) -> {
+				Map<String, Price> prices = getCurrentPrices(option.getPrices(), currency, priceGroup, date);
+				option.setCachedPrices(prices);
+			});			
+		}
 	}
 	
 	@Override
