@@ -58,6 +58,8 @@ public class ProductConverter {
 		BasicDBList categories = new BasicDBList();
 		categories.addAll(source.getCategories());
 		product.put("categories", categories);
+		
+		product.put("main_category", source.getMainCategory());
 
 		product.put("tags", source.getTags());
 		product.put("logos", source.getLogos());
