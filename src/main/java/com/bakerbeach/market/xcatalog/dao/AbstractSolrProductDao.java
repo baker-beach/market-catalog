@@ -24,7 +24,6 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +40,7 @@ import com.bakerbeach.market.xcatalog.model.PriceImpl;
 import com.bakerbeach.market.xcatalog.model.PriceRangeFacetImpl;
 import com.bakerbeach.market.xcatalog.model.Product;
 import com.bakerbeach.market.xcatalog.model.ProductImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class AbstractSolrProductDao<G extends Group, P extends Product> implements SolrProductDao {
 	protected static final Logger log = LoggerFactory.getLogger(AbstractSolrProductDao.class);

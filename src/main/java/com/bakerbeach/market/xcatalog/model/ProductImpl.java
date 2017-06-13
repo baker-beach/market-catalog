@@ -16,6 +16,9 @@ import org.mongodb.morphia.annotations.Property;
 import org.mongodb.morphia.annotations.Transient;
 
 import com.bakerbeach.market.core.api.model.TaxCode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity(value = "product")
 public class ProductImpl implements Product, PriceAware {
@@ -487,6 +490,7 @@ public class ProductImpl implements Product, PriceAware {
 		protected Boolean isMultiselect = false;
 
 		@Override
+		@JsonIgnore
 		public Boolean isRequired() {
 			return minQty.compareTo(BigDecimal.ZERO) == 1;
 		}
@@ -537,6 +541,7 @@ public class ProductImpl implements Product, PriceAware {
 		}
 
 		@Override
+		@JsonProperty(value = "multiselect")
 		public void setIsMultiselect(Boolean isMultiselect) {
 			this.isMultiselect = isMultiselect;
 		}
