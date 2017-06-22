@@ -17,7 +17,6 @@ import org.mongodb.morphia.annotations.Transient;
 
 import com.bakerbeach.market.core.api.model.TaxCode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity(value = "product")
@@ -49,6 +48,8 @@ public class ProductImpl implements Product, PriceAware {
 	@Property("base_price2_unit")
 	protected String basePrice2Unit;
 	protected Map<String, List<Map<String, Asset>>> assets = new HashMap<>();
+	@Property("indexed")
+	protected Boolean isIndexed = true;
 	@Property("required")
 	protected Boolean isRequired = false;
 	@Property("available")
@@ -356,6 +357,15 @@ public class ProductImpl implements Product, PriceAware {
 		return StringUtils.isNotEmpty(code) ? options.get(code) : null;
 	}
 
+	@Override
+	public Boolean isIndexed() {
+		return isIndexed;
+	}
+	
+	public void setIsIndexed(Boolean isIndexed) {
+		this.isIndexed = isIndexed;
+	}
+	
 	@Override
 	public Boolean isRequired() {
 		return isRequired;
