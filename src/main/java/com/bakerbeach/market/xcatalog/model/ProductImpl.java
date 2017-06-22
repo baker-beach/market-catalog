@@ -81,62 +81,10 @@ public class ProductImpl implements Product, PriceAware {
 	protected List<String> categories = new ArrayList<>();
 	@Transient
 	protected Map<String, Price> cachedPrices = new HashMap<>();
-
-	/*
-	 * public static Map<String, Price> getPrice(List<Price> prices, Currency
-	 * currency, String priceGroup, Date date) { Map<String, Price> priceMap =
-	 * new HashMap<>(); Map<String, Price> defaultPriceMap = new HashMap<>();
-	 * 
-	 * for (Price p : prices) { String tag = p.getTag();
-	 * 
-	 * Date start = p.getStart(); if (!start.after(date)) { if
-	 * (currency.equals(p.getCurrency())) { if (priceGroup.equals(p.getGroup()))
-	 * { if (priceMap.get(tag) == null) { priceMap.put(tag, p); } else if
-	 * (priceMap.get(tag).getStart().before(p.getStart())) { priceMap.put(tag,
-	 * p); } } else if ("default".equalsIgnoreCase(p.getGroup())) { if
-	 * (defaultPriceMap.get(tag) == null) { defaultPriceMap.put(tag, p); } else
-	 * if (defaultPriceMap.get(tag).getStart().before(p.getStart())) {
-	 * defaultPriceMap.put(tag, p); } } } } }
-	 * 
-	 * // get default prices --- defaultPriceMap.forEach((tag, price) -> { if
-	 * (!priceMap.containsKey(tag)) { priceMap.put(tag, price); } });
-	 * 
-	 * return priceMap; }
-	 * 
-	 * public static Price getPrice(List<Price> prices, String tag, Currency
-	 * currency, String priceGroup, Date date) { Price price = null; Price
-	 * defaultPrice = null;
-	 * 
-	 * for (Price p : prices) { if (tag.equals(p.getTag())) { Date start =
-	 * p.getStart(); if (!start.after(date)) { if
-	 * (currency.equals(p.getCurrency())) { if (priceGroup.equals(p.getGroup()))
-	 * { if (price == null) { price = p; } else if
-	 * (price.getStart().before(p.getStart())) { price = p; } } else if
-	 * ("default".equalsIgnoreCase(p.getGroup())) { if (defaultPrice == null) {
-	 * defaultPrice = p; } else if
-	 * (defaultPrice.getStart().before(p.getStart())) { defaultPrice = p; } } }
-	 * } } }
-	 * 
-	 * return (price != null) ? price : (defaultPrice != null) ? defaultPrice :
-	 * null; }
-	 */
-
-	// @Override
-	// public Price getPrice(String tag, Currency currency, String priceGroup,
-	// Date date) {
-	// return ProductImpl.getPrice(prices, tag, currency, priceGroup, date);
-	// }
-
-	// @Override
-	// public Price getPrice(Currency currency, String priceGroup, Date date) {
-	// return getPrice("std", currency, priceGroup, date);
-	// }
-
-	// @Override
-	// public Map<String, Price> getCurrentPrices(Currency currency, String
-	// priceGroup, Date date) {
-	// return ProductImpl.getPrice(prices, currency, priceGroup, date);
-	// }
+	@Property("min_qty")
+	protected BigDecimal minQty = BigDecimal.ZERO;
+	@Property("max_qty")
+	protected BigDecimal maxQty = new BigDecimal(1000);
 
 	@Override
 	public List<Price> getPrices() {
@@ -491,7 +439,27 @@ public class ProductImpl implements Product, PriceAware {
 	public void setCategories(List<String> categories) {
 		this.categories = categories;
 	}
+	
+	@Override
+	public BigDecimal getMinQty() {
+		return minQty;
+	}
+	
+	@Override
+	public void setMinQty(BigDecimal minQty) {
+		this.minQty = minQty;
+	}
 
+	@Override
+	public BigDecimal getMaxQty() {
+		return maxQty;
+	}
+	
+	@Override
+	public void setMaxQty(BigDecimal maxQty) {
+		this.maxQty = maxQty;
+	}
+	
 	public static class ComponentImpl implements Component {
 		protected String code;
 		protected String parentCode;

@@ -16,7 +16,7 @@
 		<dependency>
             <groupId>com.bakerbeach.market</groupId>
 			<artifactId>market-catalog-api</artifactId>
-            <version>[3.0.2]</version>
+            <version>[3.0.3]</version>
 		</dependency>
 		<dependency>
             <groupId>com.bakerbeach.market</groupId>
@@ -58,5 +58,5 @@
 	    </dependencies>
 	<build>
     </build>
-	<version>3.0.4</version>
+	<version>3.0.5</version>
 </project>
