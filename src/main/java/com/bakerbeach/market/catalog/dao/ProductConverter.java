@@ -79,7 +79,7 @@ public class ProductConverter {
 		product.put("std_prices", stdPrices);
 
 		BasicDBList prices = new BasicDBList();
-		source.getStdPrices().forEach(p -> {
+		source.getPrices().forEach(p -> {
 			BasicDBObject price = new BasicDBObject();
 			price.put("group", p.getGroup());
 			price.put("start", p.getStart());
