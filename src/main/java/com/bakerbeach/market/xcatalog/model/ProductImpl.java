@@ -79,6 +79,8 @@ public class ProductImpl implements Product, PriceAware {
 	@Embedded
 	protected LinkedHashMap<String, Option> options = new LinkedHashMap<>();
 	protected List<String> categories = new ArrayList<>();
+	@Property("main_category")
+	protected String mainCategory;
 	@Transient
 	protected Map<String, Price> cachedPrices = new HashMap<>();
 	@Property("min_qty")
@@ -438,6 +440,15 @@ public class ProductImpl implements Product, PriceAware {
 
 	public void setCategories(List<String> categories) {
 		this.categories = categories;
+	}
+	
+	@Override
+	public String getMainCategory() {
+		return mainCategory;
+	}
+
+	public void setMainCategory(String mainCategory) {
+		this.mainCategory = mainCategory;
 	}
 	
 	@Override
