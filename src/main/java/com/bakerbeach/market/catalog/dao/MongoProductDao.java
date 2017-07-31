@@ -87,6 +87,22 @@ public class MongoProductDao implements ProductDao {
 		return list;
 	}
 
+	public List<String> findGtinStatusAndIndex(String status, Boolean index) {
+		QueryBuilder qb = QueryBuilder.start();
+		if (index != null) {
+			qb.and("index").is(index);
+		}
+		DBCursor cursor = getProductCollection().find(qb.get(), new BasicDBObject("gtin", 1));
+		
+		List<String> list = new ArrayList<String>(cursor.size());
+		for (Iterator<DBObject> it = cursor.iterator(); it.hasNext();) {
+			String gtin = (String) it.next().get("gtin");
+			list.add(gtin);
+		}
+		
+		return list;
+	}
+	
 	@Override
 	public List<GroupedProduct> findGroupByGroupCode(Locale locale, String priceGroup, Currency currency,
 			Collection<String> groupCode, String countryOfDelivery, Date date, String groupBy) {

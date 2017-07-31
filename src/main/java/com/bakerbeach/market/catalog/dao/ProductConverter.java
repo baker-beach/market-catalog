@@ -58,6 +58,8 @@ public class ProductConverter {
 		BasicDBList categories = new BasicDBList();
 		categories.addAll(source.getCategories());
 		product.put("categories", categories);
+		
+		product.put("main_category", source.getMainCategory());
 
 		product.put("tags", source.getTags());
 		product.put("logos", source.getLogos());
@@ -77,7 +79,7 @@ public class ProductConverter {
 		product.put("std_prices", stdPrices);
 
 		BasicDBList prices = new BasicDBList();
-		source.getStdPrices().forEach(p -> {
+		source.getPrices().forEach(p -> {
 			BasicDBObject price = new BasicDBObject();
 			price.put("group", p.getGroup());
 			price.put("start", p.getStart());
