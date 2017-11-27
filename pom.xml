@@ -4,7 +4,7 @@
 	<parent>
 	    <groupId>com.bakerbeach.market</groupId>
 	    <artifactId>market-parent</artifactId>
-	    <version>1.0.0</version>
+	    <version>1.0.1</version>
 	</parent>	
     <modelVersion>4.0.0</modelVersion>
     <artifactId>market-catalog</artifactId>
@@ -16,30 +16,47 @@
 		<dependency>
             <groupId>com.bakerbeach.market</groupId>
 			<artifactId>market-catalog-api</artifactId>
-            <version>[2.0.4]</version>
+            <version>[3.0.5]</version>
 		</dependency>
 		<dependency>
             <groupId>com.bakerbeach.market</groupId>
 			<artifactId>market-inventory-api</artifactId>
-            <version>[2.1.0,2.2.0)</version>
+            <version>[3.0.0,3.1.0)</version>
+		</dependency>
+		<dependency>
+            <groupId>com.bakerbeach.market</groupId>
+			<artifactId>market-inventory</artifactId>
+            <version>[3.0.0,3.1.0)</version>
+            <scope>test</scope>
 		</dependency>
 		<dependency>
             <groupId>com.bakerbeach.market</groupId>
 			<artifactId>market-translation-api</artifactId>
-            <version>[1.0.0,1.1.0)</version>
+            <version>[3.0.0,3.1.0)</version>
+		</dependency>
+		<dependency>
+            <groupId>com.bakerbeach.market</groupId>
+			<artifactId>market-translation</artifactId>
+            <version>[3.0.0,3.1.0)</version>
+            <scope>test</scope>
 		</dependency>
 		<dependency>
             <groupId>com.bakerbeach.market</groupId>
 			<artifactId>market-tax-api</artifactId>
-            <version>1.0.0</version>
+            <version>[3.0.0,3.1.0)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.solr</groupId>
 			<artifactId>solr-solrj</artifactId>
 			<version>4.0.0</version>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.bakerbeach.market</groupId>
+			<artifactId>market-morphia</artifactId>
+			<version>[1.0.0,1.1.0)</version>
+		</dependency>
+	    </dependencies>
 	<build>
     </build>
-	<version>2.0.9</version>
+	<version>3.0.8</version>
 </project>

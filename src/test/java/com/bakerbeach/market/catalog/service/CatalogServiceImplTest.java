@@ -2,14 +2,18 @@ package com.bakerbeach.market.catalog.service;
 
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,10 @@ import com.bakerbeach.market.catalog.model.CatalogSearchResult;
 import com.bakerbeach.market.catalog.model.Pager;
 import com.bakerbeach.market.catalog.utils.FacetFilterFactory;
 import com.bakerbeach.market.core.api.model.FilterList;
+import com.bakerbeach.market.xcatalog.model.Asset;
+import com.bakerbeach.market.xcatalog.model.AssetImpl;
+import com.bakerbeach.market.xcatalog.model.Product;
+import com.bakerbeach.market.xcatalog.model.ProductImpl;
 
 import junit.framework.Assert;
 
@@ -37,6 +45,39 @@ public class CatalogServiceImplTest {
 	@Autowired()
 	protected FacetFilterFactory facetFilterFactory;
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void bar() {
+		
+		String str = "{\"listing\":[{\"m\":{\"type\":\"image\",\"path\":\"/images/listing/s/4260526590065.jpg\"}}]}";
+		
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			AssetMap map = mapper.readValue(str, AssetMap.class);
+			
+			
+			
+			
+			ProductImpl product = new ProductImpl();
+			
+			for (String tag : map.keySet()) {
+				for (Map<String, AssetImpl> group : map.get(tag)) {
+					product.addAsset(tag, new HashMap<>(group));
+				}
+			}
+			
+			
+			System.out.println(map);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static class AssetMap extends LinkedHashMap<String, ArrayList<LinkedHashMap<String, AssetImpl>>> {
+		private static final long serialVersionUID = 1L;
+	}
+	
 	@Test
 	public void testGetProductByPrimaryGroup() {
 		try {

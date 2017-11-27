@@ -14,14 +14,15 @@
 		<property name="solrProductDao" ref="solrProductDao" />
 	</bean>
 
-	<bean id="messageService" class="com.bakerbeach.market.core.service.MessageServiceImpl">
-		<property name="messageDao" ref="mongoMessageDao" />
+	<bean id="translationService"
+		class="com.bakerbeach.market.translation.service.TranslationServiceImpl">
+		<property name="messageDao">
+			<bean id="mongoMessageDao" class="com.bakerbeach.market.core.service.MessageDaoImpl">
+				<property name="mongoTemplate" ref="cmsTemplate" />
+				<property name="messagesCollection" value="messages" />
+			</bean>
+		</property>
 		<property name="defaultLocale" value="de" />
-	</bean>
-
-	<bean id="mongoMessageDao" class="com.bakerbeach.market.core.service.MessageDaoImpl">
-		<property name="mongoTemplate" ref="cmsTemplate" />
-		<property name="messagesCollection" value="messages" />
 	</bean>
 
 	<bean id="solrProductDao" class="com.bakerbeach.market.catalog.dao.SolrProductDaoLiveImpl">
@@ -35,14 +36,13 @@
 			/> -->
 	</bean>
 
-	<bean id="euInventoryService" class="com.bakerbeach.market.core.service.inventory.InventoryServiceImpl">
+	<bean id="euInventoryService" class="com.bakerbeach.market.inventory.service.InventoryServiceImpl">
+		<!--
 		<property name="inventoryDao" ref="inventoryDao" />
 		<property name="inventoryCacheDao" ref="inventoryCacheDao" />
 		<property name="transactionManager" ref="jdbcTxManager" />
-		<!--
 		<property name="transactionManager" ref="inventoryTxManager" />
 		<property name="catalogService" ref="catalogService" />
-		-->
 		<property name="shopsStorageLocations">
 			<bean class="java.util.HashMap">
 				<constructor-arg>
@@ -59,8 +59,10 @@
 		<property name="servicingStorageLocations">
 			<bean id="servicingStorageLocations" class="java.util.HashMap" />
 		</property>
+		-->
 	</bean>
 		
+	<!--  
 	<bean id="inventoryDao" class="com.bakerbeach.market.core.service.inventory.StdInventoryDaoImpl">
 		<property name="jdbcTemplate" ref="productInventoryJdbcTemplate" />
 	</bean>
@@ -70,11 +72,15 @@
 		<property name="collectionName" value="inventory" />
 		<property name="mongoTemplate" ref="inventoryCacheTemplate" />
 	</bean>
+	-->
 
 	<bean id="facetFilterFactory" class="com.bakerbeach.market.catalog.utils.FacetFilterFactory">
+	<!-- 
 		<property name="attributeUrlMapping" ref="attributeUrlMapping" />
+	 -->
 	</bean>
 	
+	<!--  
 	<bean id="attributeUrlMapping" class="com.bakerbeach.market.core.service.AttributeUrlMapping"
 		init-method="init">
 		<property name="messageService" ref="messageService" />
@@ -85,6 +91,7 @@
 			</set>
 		</property>
 	</bean>
+	-->
 		
 	<beans profile="product.published">
 	</beans>
