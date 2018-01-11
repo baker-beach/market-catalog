@@ -3,10 +3,10 @@ package com.bakerbeach.market.xcatalog.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -79,6 +79,24 @@ public abstract class AbstractMorphiaProductDao<G extends Group, P extends Produ
 		Query<P> query = ((AdvancedDatastore) datastore).createQuery(productCollectionName, productClass)
 				.field("shopCode").equal(shopCode).field("status").equal(status).field("type").in(types).field("code")
 				.in(codes);
+
+		List<Product> products = new ArrayList<>();
+		query.forEach(i -> {
+			try {
+				products.add(i);				
+			} catch (Exception e) {
+			}
+		});
+
+		return products;
+	}
+	
+	@Override
+	public List<Product> byFilters(Map<String,Object> filter) {
+		Query<P> query = ((AdvancedDatastore) datastore).createQuery(productCollectionName, productClass);
+		for(String filterKey : filter.keySet()) {
+			query.filter(filterKey, filter.get(filterKey));
+		}
 
 		List<Product> products = new ArrayList<>();
 		query.forEach(i -> {

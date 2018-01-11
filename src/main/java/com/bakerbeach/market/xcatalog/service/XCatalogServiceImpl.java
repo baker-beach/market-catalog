@@ -50,6 +50,12 @@ public class XCatalogServiceImpl implements XCatalogService {
 				Arrays.asList(Product.Type.PRODUCT), codes);		
 		return list;
 	}
+	
+	@Override
+	public List<Product> rawByFilter(String shopCode,Map<String,Object> filters) {
+		List<Product> list = mongoProductDaos.get(shopCode).byFilters(filters);
+		return list;
+	}
 
 	@Override
 	public Group groupByCode(String shopCode, Product.Status status, Locale locale, String priceGroup,

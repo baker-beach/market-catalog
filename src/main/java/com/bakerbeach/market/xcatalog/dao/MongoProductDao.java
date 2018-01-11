@@ -2,6 +2,7 @@ package com.bakerbeach.market.xcatalog.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.bakerbeach.market.xcatalog.model.Group;
 import com.bakerbeach.market.xcatalog.model.Product;
@@ -25,5 +26,7 @@ public interface MongoProductDao {
 
 	List<String> productCodes(String shopCode, Collection<Type> types, Collection<Status> status, String order,
 			Integer offset, Integer limit);
+
+	List<Product> byFilters(Map<String, Object> filters);
 
 }
