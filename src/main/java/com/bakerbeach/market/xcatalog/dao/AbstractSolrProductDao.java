@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -252,8 +253,10 @@ public abstract class AbstractSolrProductDao<G extends Group, P extends Product>
 							AssetMap map = mapper.readValue((String) e.getValue(), AssetMap.class);
 							
 							for (String tag : map.keySet()) {
-								for (Map<String, AssetImpl> group : map.get(tag)) {
-									productImpl.addAsset(tag, new HashMap<>(group));
+								if (map.get(tag) != null) {
+									for (Map<String, AssetImpl> group : map.get(tag)) {
+										productImpl.addAsset(tag, new HashMap<>(group));
+									}									
 								}
 							}
 						} catch (IOException ee) {
