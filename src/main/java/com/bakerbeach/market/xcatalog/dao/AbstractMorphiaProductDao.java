@@ -1,7 +1,11 @@
 package com.bakerbeach.market.xcatalog.dao;
 
+import java.time.chrono.MinguoChronology;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.aggregation.AggregationPipeline;
+import org.mongodb.morphia.aggregation.Group.*;
+import org.mongodb.morphia.aggregation.Sort;
 import org.mongodb.morphia.query.Query;
 
 import com.bakerbeach.market.xcatalog.model.Group;
@@ -44,27 +51,27 @@ public abstract class AbstractMorphiaProductDao<G extends Group, P extends Produ
 			Integer offset, Integer limit) {
 		Query<P> query = ((AdvancedDatastore) datastore).createQuery(productCollectionName, productClass)
 				.retrievedFields(true, "code").field("shopCode").equal(shopCode);
-		
+
 		if (CollectionUtils.isNotEmpty(types)) {
 			query.field("type").in(types);
 		}
-		
+
 		if (CollectionUtils.isNotEmpty(status)) {
 			query.field("status").in(status);
 		}
-		
+
 		if (StringUtils.isNotBlank(order)) {
 			query.order(order);
 		}
-		
+
 		if (offset != null) {
 			query.offset(offset);
 		}
-		
+
 		if (limit != null) {
 			query.limit(limit);
 		}
-		
+
 		List<String> list = new ArrayList<>();
 		query.forEach(p -> {
 			list.add(p.getCode());
@@ -77,31 +84,36 @@ public abstract class AbstractMorphiaProductDao<G extends Group, P extends Produ
 	public List<Product> byCode(String shopCode, Product.Status status, Collection<Product.Type> types,
 			Collection<String> codes) {
 		Query<P> query = ((AdvancedDatastore) datastore).createQuery(productCollectionName, productClass)
-				.field("shopCode").equal(shopCode).field("status").equal(status).field("type").in(types).field("code")
-				.in(codes);
-
+				.field("shopCode").equal(shopCode).field("status").equal(status);
+		if (CollectionUtils.isNotEmpty(types)) {
+			query.field("type").in(types);
+		}
+		if (CollectionUtils.isNotEmpty(codes)) {
+			query.field("code").in(codes);
+		}
+		
 		List<Product> products = new ArrayList<>();
 		query.forEach(i -> {
 			try {
-				products.add(i);				
+				products.add(i);
 			} catch (Exception e) {
 			}
 		});
 
 		return products;
 	}
-	
+
 	@Override
-	public List<Product> byFilters(Map<String,Object> filter) {
+	public List<Product> byFilters(Map<String, Object> filter) {
 		Query<P> query = ((AdvancedDatastore) datastore).createQuery(productCollectionName, productClass);
-		for(String filterKey : filter.keySet()) {
+		for (String filterKey : filter.keySet()) {
 			query.filter(filterKey, filter.get(filterKey));
 		}
 
 		List<Product> products = new ArrayList<>();
 		query.forEach(i -> {
 			try {
-				products.add(i);				
+				products.add(i);
 			} catch (Exception e) {
 			}
 		});
@@ -121,6 +133,60 @@ public abstract class AbstractMorphiaProductDao<G extends Group, P extends Produ
 		});
 
 		return products;
+	}
+
+	private static class AggregationGroup {
+		public String _id;
+		public List<String> codes;
+		public String sort;
+	}
+
+	@Override	
+	public List<Group> groupByCode(String shopCode, Status status, String groupBy, List<String> codes, List<Product.Unit> units) {
+
+		Query<P> query = ((AdvancedDatastore) datastore).createQuery(productCollectionName, productClass)
+				.field("shopCode").equal(shopCode).field("status").equal(status);
+		if (CollectionUtils.isNotEmpty(units)) {
+			query.field("unit").in(units);
+		}
+		if (CollectionUtils.isNotEmpty(codes)) {
+			query.field("code").in(codes);
+		}
+		
+		AggregationPipeline pipeline = datastore.createAggregation(productClass).match(query);
+		pipeline.group(groupBy,
+				org.mongodb.morphia.aggregation.Group.grouping("codes", org.mongodb.morphia.aggregation.Group.push("code")),
+				org.mongodb.morphia.aggregation.Group.grouping("sort", org.mongodb.morphia.aggregation.Group.min("sort")));
+		pipeline.sort(Sort.ascending("sort"));
+		
+		List<String> allProductCodes = new ArrayList<>();
+		List<AggregationGroup> aggregationGroups = new ArrayList<>();
+		pipeline.aggregate(AggregationGroup.class).forEachRemaining((p) -> {
+			aggregationGroups.add(p);
+			allProductCodes.addAll(p.codes);
+		});
+
+		List<Product> allProducts = byCode(shopCode, status, Arrays.asList(Product.Type.PRODUCT), allProductCodes);
+		Map<String, Product> allProductsMap = new HashMap<>();
+		allProducts.forEach(p -> {
+			allProductsMap.put(p.getCode(), p);
+		});
+		
+		List<Group> groups = new ArrayList<>();
+		aggregationGroups.forEach(ag -> {
+			try {
+				Group group = groupClass.newInstance();
+				group.setCode(ag._id);
+				ag.codes.forEach(c -> {
+					group.getMembers().add(allProductsMap.get(c));
+				});
+				groups.add(group);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		});
+		
+		return groups;
 	}
 
 	@Override

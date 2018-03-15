@@ -8,6 +8,7 @@ import com.bakerbeach.market.xcatalog.model.Group;
 import com.bakerbeach.market.xcatalog.model.Product;
 import com.bakerbeach.market.xcatalog.model.Product.Status;
 import com.bakerbeach.market.xcatalog.model.Product.Type;
+import com.bakerbeach.market.xcatalog.model.Product.Unit;
 
 public interface MongoProductDao {
 
@@ -19,6 +20,8 @@ public interface MongoProductDao {
 	void save(Product product);
 
 	List<Group> groupByCode(String shopCode, Product.Status status, Collection<String> codes);
+
+	List<Group> groupByCode(String shopCode, Status status, String groupBy, List<String> codes, List<Unit> units);
 
 	void groupSave(Group group);
 

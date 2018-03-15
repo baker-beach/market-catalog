@@ -58,6 +58,24 @@ public class XCatalogServiceImpl implements XCatalogService {
 	}
 
 	@Override
+	public SearchResult groupByCode(String shopCode, Product.Status status, Locale locale, String priceGroup,
+			Currency currency, String countryOfDelivery, Date date, String groupBy, List<String> codes,
+			List<Product.Unit> units, Pager pager, String sort) throws XCatalogServiceException {
+		try {
+			List<Group> groups = mongoProductDaos.get(shopCode).groupByCode(shopCode, status, groupBy, codes, units);
+			refine(groups, date, currency, priceGroup);
+
+			SearchResult result = new SearchResult();
+			result.getGroups().addAll(groups);
+			result.setPager(new Pager(pager.getPageSize(), pager.getCurrentPage(), groups.size()));
+
+			return result;
+		} catch (Exception e) {
+			throw new XCatalogServiceException(e);
+		}
+	}
+	
+	@Override
 	public Group groupByCode(String shopCode, Product.Status status, Locale locale, String priceGroup,
 			Currency currency, String countryOfDelivery, Date date, String groupBy, String code)
 			throws XCatalogServiceException {
